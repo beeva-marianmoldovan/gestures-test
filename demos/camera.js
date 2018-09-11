@@ -19,36 +19,36 @@ import dat from 'dat.gui';
 import Stats from 'stats.js';
 import {drawKeypoints, drawSkeleton, drawBoundingBox} from './demo_util';
 import dollar from 'dollarx/index';
+import dollars from 'one-dollar';
 
 const videoWidth = 600;
 const videoHeight = 500;
 const stats = new Stats();
-const poseHistory = new Array();
-
-poseHistory.push = function () {
-    if (this.length >= 50) {
-        this.shift();
-    }
-    return Array.prototype.push.apply(this,arguments);
-}
+var poseHistory = [];
 
 const rawGesture = [{x:300,y:300},{x:310,y:300},{x:320,y:300},{x:330,y:300},{x:340,y:300},{x:350,y:300}];
 
-const gestureDetector = dollar.createDollar()
-//gestureDetector.unistrokes = []
+const gestureDetector = dollar.createDollar();
+const recognizerOneDollar = dollars();
 
-/*gestureDetector.addGesture('right', [{x:100,y:100},{x:200,y:100},{x:300,y:100}])
-gestureDetector.addGesture('left', [{x:300,y:100},{x:200,y:100},{x:100,y:100}])
-gestureDetector.addGesture('up', [{x:100,y:100},{x:100,y:200},{x:100,y:300}])
-gestureDetector.addGesture('down', [{x:100,y:300},{x:100,y:200},{x:100,y:100}])*/
+gestureDetector.addGesture('RIGHT-GESTURE', [{x:0,y:350},{x:300,y:350},{x:600,y:350}]);
+gestureDetector.addGesture('LEFT-GESTURE', [{x:300,y:350},{x:275,y:350},{x:250,y:350},{x:225,y:350},{x:200,y:350}])
 
 function detectGesture(){
-
-  let leftKeypoints = poseHistory.map(item => item[0][0])
-  let rightKeypoints = poseHistory.map(item => item[1][0])
-
-  let detectedGesture = gestureDetector.recognize(rightKeypoints)
-  console.log(detectedGesture)
+  console.log(poseHistory)
+  console.log(poseHistory.slice(0))
+  if(poseHistory.length > 50)
+    poseHistory = poseHistory.slice(poseHistory.length - 50, poseHistory.length)
+  if(poseHistory.length > 0){
+    let detectedGesture = gestureDetector.recognize(poseHistory.slice(0));
+    let resultGesture = recognizerOneDollar([[250,200], [295,260], [350,250], [425,230]]);
+    console.log(detectedGesture);
+    console.log(resultGesture);
+  }
+  
+  //let rightKeypoints = poseHistory.map(item => item[1][0])
+  //detectedGesture = gestureDetector.recognize(rightKeypoints)
+  //console.log(detectedGesture)
   //detectedGesture = gestureDetector.recognize(rightKeypoints)
   //console.log(detectedGesture)
 }
@@ -107,7 +107,7 @@ async function loadVideo() {
 const guiState = {
   algorithm: 'single-pose',
   input: {
-    mobileNetArchitecture: isMobile() ? '0.50' : '1.00',
+    mobileNetArchitecture: isMobile() ? '0.50' : '0.75',
     outputStride: 16,
     imageScaleFactor: 0.33,
   },
@@ -264,18 +264,24 @@ function detectPoseInRealTime(video, net) {
         poses.push(pose);
 
         let leftWristKeypoints = pose.keypoints.filter(item => item.part === 'leftWrist')
-        let leftKeypoints = leftWristKeypoints.map(item => {
+        let leftKeypoint = leftWristKeypoints.map(item => {
             if(item.score > 0.66)
               return item.position
-            else return {x:0,y:0}
-        })
+        })[0]
         let rightWristKeypoints = pose.keypoints.filter(item => item.part === 'rightWrist')
         let rightKeypoints = rightWristKeypoints.map(item => {
             if(item.score > 0.66)
               return item.position
-            else return {x:0,y:0}
         })
-        poseHistory.push([leftKeypoints, rightKeypoints])
+        if(leftKeypoint){
+          console.log(leftKeypoint)
+          //if(poseHistory.length > 25) poseHistory.shift();
+          poseHistory.push(leftKeypoint);    
+          // if(poseHistory.length >= 25){
+          //   console.log('length', poseHistory.length)
+          //   poseHistory.shift()
+          // }
+        }
         detectGesture()
 
         minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
@@ -312,10 +318,10 @@ function detectPoseInRealTime(video, net) {
           drawKeypoints(keypoints, minPartConfidence, ctx);
         }
         if (guiState.output.showSkeleton) {
-          drawSkeleton(keypoints, minPartConfidence, ctx);
+          //drawSkeleton(keypoints, minPartConfidence, ctx);
         }
         if (guiState.output.showBoundingBox) {
-          drawBoundingBox(keypoints, ctx);
+          //drawBoundingBox(keypoints, ctx);
         }
       }
     });
