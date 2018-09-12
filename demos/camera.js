@@ -19,33 +19,38 @@ import dat from 'dat.gui';
 import Stats from 'stats.js';
 import {drawKeypoints, drawSkeleton, drawBoundingBox} from './demo_util';
 import dollar from 'dollarx/index';
-import dollars from 'one-dollar';
 
 const videoWidth = 600;
 const videoHeight = 500;
 const stats = new Stats();
-var poseHistory = [];
+var leftPoseHistory = [];
+var rightPoseHistory = [];
 
 const rawGesture = [{x:300,y:300},{x:310,y:300},{x:320,y:300},{x:330,y:300},{x:340,y:300},{x:350,y:300}];
 
 const gestureDetector = dollar.createDollar();
-const recognizerOneDollar = dollars();
+gestureDetector.unistrokes = []
 
-gestureDetector.addGesture('RIGHT-GESTURE', [{x:0,y:350},{x:300,y:350},{x:600,y:350}]);
-gestureDetector.addGesture('LEFT-GESTURE', [{x:300,y:350},{x:275,y:350},{x:250,y:350},{x:225,y:350},{x:200,y:350}])
+gestureDetector.addGesture('right', [{x:125,y:125},{x:250,y:126}]);
+gestureDetector.addGesture('left', [{x:250,y:120},{x:125,y:126}]);
 
 function detectGesture(){
-  console.log(poseHistory)
-  console.log(poseHistory.slice(0))
-  if(poseHistory.length > 50)
-    poseHistory = poseHistory.slice(poseHistory.length - 50, poseHistory.length)
-  if(poseHistory.length > 0){
-    let detectedGesture = gestureDetector.recognize(poseHistory.slice(0));
-    let resultGesture = recognizerOneDollar([[250,200], [295,260], [350,250], [425,230]]);
-    console.log(detectedGesture);
-    console.log(resultGesture);
+  if(leftPoseHistory.length > 15){
+    leftPoseHistory = leftPoseHistory.slice(leftPoseHistory.length - 15, leftPoseHistory.length)
+    rightPoseHistory = rightPoseHistory.slice(rightPoseHistory.length - 15, rightPoseHistory.length)
   }
-  
+  if(leftPoseHistory.length > 0){
+    let detectedGesture = gestureDetector.recognize(leftPoseHistory.slice(0));
+    let rightDetectedGesture = gestureDetector.recognize(rightPoseHistory.slice(0));
+    if(detectedGesture.score >= 0.5)
+      console.log('LEFT', detectedGesture);
+    if(rightDetectedGesture.score >= 0.5)
+     console.log('RIGHT', rightDetectedGesture);
+    if(detectedGesture.score >= 0.66 && rightDetectedGesture.score >= 0.66 && detectedGesture.name == 'left-diagonal' && rightDetectedGesture.name == 'right-diagonal')
+      console.log('BOOOOOOOOMMM')
+
+  }
+
   //let rightKeypoints = poseHistory.map(item => item[1][0])
   //detectedGesture = gestureDetector.recognize(rightKeypoints)
   //console.log(detectedGesture)
@@ -107,7 +112,7 @@ async function loadVideo() {
 const guiState = {
   algorithm: 'single-pose',
   input: {
-    mobileNetArchitecture: isMobile() ? '0.50' : '0.75',
+    mobileNetArchitecture: isMobile() ? '0.50' : '1.00',
     outputStride: 16,
     imageScaleFactor: 0.33,
   },
@@ -267,21 +272,18 @@ function detectPoseInRealTime(video, net) {
         let leftKeypoint = leftWristKeypoints.map(item => {
             if(item.score > 0.66)
               return item.position
+            else return {x:0,y:0}
         })[0]
         let rightWristKeypoints = pose.keypoints.filter(item => item.part === 'rightWrist')
         let rightKeypoints = rightWristKeypoints.map(item => {
             if(item.score > 0.66)
               return item.position
-        })
-        if(leftKeypoint){
-          console.log(leftKeypoint)
-          //if(poseHistory.length > 25) poseHistory.shift();
-          poseHistory.push(leftKeypoint);    
-          // if(poseHistory.length >= 25){
-          //   console.log('length', poseHistory.length)
-          //   poseHistory.shift()
-          // }
-        }
+            else return {x:0,y:0}
+        })[0]
+        if(leftKeypoint)
+          leftPoseHistory.push(leftKeypoint);
+        if(rightKeypoints)
+          rightPoseHistory.push(rightKeypoints)
         detectGesture()
 
         minPoseConfidence = +guiState.singlePoseDetection.minPoseConfidence;
@@ -315,7 +317,8 @@ function detectPoseInRealTime(video, net) {
     poses.forEach(({score, keypoints}) => {
       if (score >= minPoseConfidence) {
         if (guiState.output.showPoints) {
-          drawKeypoints(keypoints, minPartConfidence, ctx);
+          let filteredKeypoints = keypoints.filter(item => item.part === 'leftWrist' || item.part === 'rightWrist')
+          drawKeypoints(filteredKeypoints, minPartConfidence, ctx);
         }
         if (guiState.output.showSkeleton) {
           //drawSkeleton(keypoints, minPartConfidence, ctx);
