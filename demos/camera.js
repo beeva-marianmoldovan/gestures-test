@@ -26,13 +26,15 @@ const stats = new Stats();
 var leftPoseHistory = [];
 var rightPoseHistory = [];
 
-const rawGesture = [{x:300,y:300},{x:310,y:300},{x:320,y:300},{x:330,y:300},{x:340,y:300},{x:350,y:300}];
-
 const gestureDetector = dollar.createDollar();
-gestureDetector.unistrokes = []
+//gestureDetector.unistrokes = []
 
-gestureDetector.addGesture('right', [{x:125,y:125},{x:250,y:126}]);
-gestureDetector.addGesture('left', [{x:250,y:120},{x:125,y:126}]);
+// gestureDetector.addGesture('right', [{x:150,y:125},{x:300,y:126}]);
+// gestureDetector.addGesture('left', [{x:150,y:125},{x:0,y:126}]);
+gestureDetector.addGesture('right', [{x:100,y:125},{x:200,y:126},{x:300,y:125},{x:350,y:126},{x:425,y:126}]);
+gestureDetector.addGesture('left', [{x:425,y:125},{x:350,y:126},{x:300,y:125},{x:200,y:126},{x:100,y:126}]);
+// gestureDetector.addGesture('down', [{x:125,y:100},{x:127,y:140},{x:126,y:190},{x:120,y:240},{x:125,y:290}]);
+// gestureDetector.addGesture('up', [{x:125,y:290},{x:127,y:240},{x:126,y:190},{x:125,y:140},{x:128,y:100}]);
 
 function detectGesture(){
   if(leftPoseHistory.length > 15){
@@ -40,14 +42,29 @@ function detectGesture(){
     rightPoseHistory = rightPoseHistory.slice(rightPoseHistory.length - 15, rightPoseHistory.length)
   }
   if(leftPoseHistory.length > 0){
+    // let res = 0;
+    // if(leftPoseHistory.length >= 15) {
+    //   res = leftPoseHistory[0].x - leftPoseHistory[3].x;
+    //   console.log(res)
+    // }
+
+    // if(res >= -15 && res <= 15) {
+    //   console.log('Do nothing')
+    // } else{
+    //   let detectedGesture = gestureDetector.recognize(leftPoseHistory.slice(0));
+    //   let rightDetectedGesture = gestureDetector.recognize(rightPoseHistory.slice(0));
+    //   if(detectedGesture.score >= 0.65)
+    //     console.log('LEFT', detectedGesture, 'Coordenadas:', leftPoseHistory);
+    // }
+
     let detectedGesture = gestureDetector.recognize(leftPoseHistory.slice(0));
     let rightDetectedGesture = gestureDetector.recognize(rightPoseHistory.slice(0));
-    if(detectedGesture.score >= 0.5)
-      console.log('LEFT', detectedGesture);
-    if(rightDetectedGesture.score >= 0.5)
-     console.log('RIGHT', rightDetectedGesture);
-    if(detectedGesture.score >= 0.66 && rightDetectedGesture.score >= 0.66 && detectedGesture.name == 'left-diagonal' && rightDetectedGesture.name == 'right-diagonal')
-      console.log('BOOOOOOOOMMM')
+    if(detectedGesture.score >= 0.69)
+      console.log('LEFT', detectedGesture, 'Coordenadas:', leftPoseHistory);
+    if(rightDetectedGesture.score >= 0.69)
+     console.log('RIGHT', rightDetectedGesture, 'Coordenadas: ', rightPoseHistory);
+    // if(detectedGesture.score >= 0.66 && rightDetectedGesture.score >= 0.66 && detectedGesture.name == 'left-diagonal' && rightDetectedGesture.name == 'right-diagonal')
+    //   console.log('BOOOOOOOOMMM')
 
   }
 
