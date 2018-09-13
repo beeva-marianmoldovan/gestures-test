@@ -18,7 +18,6 @@ import * as posenet from '@tensorflow-models/posenet';
 import dat from 'dat.gui';
 import Stats from 'stats.js';
 import {drawKeypoints, drawSkeleton, drawBoundingBox} from './demo_util';
-import dollar from 'dollarx/index';
 
 const videoWidth = 600;
 const videoHeight = 500;
@@ -26,36 +25,12 @@ const stats = new Stats();
 var leftPoseHistory = [];
 var rightPoseHistory = [];
 
-const rawGesture = [{x:300,y:300},{x:310,y:300},{x:320,y:300},{x:330,y:300},{x:340,y:300},{x:350,y:300}];
-
-const gestureDetector = dollar.createDollar();
-gestureDetector.unistrokes = []
-
-gestureDetector.addGesture('right', [{x:125,y:125},{x:250,y:126}]);
-gestureDetector.addGesture('left', [{x:250,y:120},{x:125,y:126}]);
 
 function detectGesture(){
-  if(leftPoseHistory.length > 15){
+  if(leftPoseHistory.length > 15)
     leftPoseHistory = leftPoseHistory.slice(leftPoseHistory.length - 15, leftPoseHistory.length)
+  if(rightPoseHistory.length > 15)
     rightPoseHistory = rightPoseHistory.slice(rightPoseHistory.length - 15, rightPoseHistory.length)
-  }
-  if(leftPoseHistory.length > 0){
-    let detectedGesture = gestureDetector.recognize(leftPoseHistory.slice(0));
-    let rightDetectedGesture = gestureDetector.recognize(rightPoseHistory.slice(0));
-    if(detectedGesture.score >= 0.5)
-      console.log('LEFT', detectedGesture);
-    if(rightDetectedGesture.score >= 0.5)
-     console.log('RIGHT', rightDetectedGesture);
-    if(detectedGesture.score >= 0.66 && rightDetectedGesture.score >= 0.66 && detectedGesture.name == 'left-diagonal' && rightDetectedGesture.name == 'right-diagonal')
-      console.log('BOOOOOOOOMMM')
-
-  }
-
-  //let rightKeypoints = poseHistory.map(item => item[1][0])
-  //detectedGesture = gestureDetector.recognize(rightKeypoints)
-  //console.log(detectedGesture)
-  //detectedGesture = gestureDetector.recognize(rightKeypoints)
-  //console.log(detectedGesture)
 }
 
 function isAndroid() {
@@ -321,7 +296,7 @@ function detectPoseInRealTime(video, net) {
           drawKeypoints(filteredKeypoints, minPartConfidence, ctx);
         }
         if (guiState.output.showSkeleton) {
-          //drawSkeleton(keypoints, minPartConfidence, ctx);
+          drawSkeleton(keypoints, minPartConfidence, ctx);
         }
         if (guiState.output.showBoundingBox) {
           //drawBoundingBox(keypoints, ctx);
