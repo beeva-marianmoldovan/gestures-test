@@ -26,11 +26,47 @@ var leftPoseHistory = [];
 var rightPoseHistory = [];
 
 
-function detectGesture(){
+function detectGesture() {
   if(leftPoseHistory.length > 15)
     leftPoseHistory = leftPoseHistory.slice(leftPoseHistory.length - 15, leftPoseHistory.length)
   if(rightPoseHistory.length > 15)
     rightPoseHistory = rightPoseHistory.slice(rightPoseHistory.length - 15, rightPoseHistory.length)
+  
+    if(rightPoseHistory.length > 14) {
+      if(getDirection(rightPoseHistory) !== undefined)
+        console.log('Dir-right: ',getDirection(rightPoseHistory))
+      if(getDirection(leftPoseHistory) !== undefined)
+        console.log('Dir-left: ',getDirection(leftPoseHistory))
+    }
+}
+
+function getDirection(arr) {
+  let rightCount = arr[0].x;
+  let leftCount = arr[0].x;;
+  // for(let i = 1; i<arr.length-1; i++){
+  //   if(arr[i].x < arr[i+1].x) {
+  //     rightCount =+ arr[i].x;
+  //   }
+  //   else {
+  //     rightCount =- arr[i].x;
+  //   }
+  //   if(arr[i].x > arr[i+1].x) {
+  //     leftCount =+ arr[i].x;
+  //   }
+  //   else {
+  //     leftCount =- arr[i].x;
+  //   }
+  // }
+  //console.log('RR:', rightCount, 'LL: ', leftCount)
+  if(arr[14].x - arr[0].x > 60)
+    return 'right';
+  if(arr[14].x - arr[0].x < -60)
+    return 'left';
+  if(arr[14].y - arr[0].y > 60)
+    return 'down';
+  if(arr[14].y - arr[0].y < -60)
+    return 'up';
+
 }
 
 function isAndroid() {
