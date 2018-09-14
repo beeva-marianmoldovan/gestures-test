@@ -19,6 +19,7 @@ import dat from 'dat.gui';
 import Stats from 'stats.js';
 import {drawKeypoints, drawSkeleton, drawBoundingBox} from './demo_util';
 import dollar from 'dollarx/index';
+import ndollar from 'ndollar-js'
 
 const videoWidth = 600;
 const videoHeight = 500;
@@ -27,6 +28,28 @@ var leftPoseHistory = [];
 var rightPoseHistory = [];
 
 const gestureDetector = dollar.createDollar();
+var nRecognizer = new ndollar.Recognizer(true);
+
+nRecognizer.LoadDefaultGestures();
+var rectRight = [ [new ndollar.Point(100, 151),  new ndollar.Point(150, 150)],
+                  [new ndollar.Point(200, 152), new ndollar.Point(250, 153)],
+                  [new ndollar.Point(300, 150), new ndollar.Point(350, 149)]
+                ];
+
+nRecognizer.AddGesture( "GestureRight", rectRight);
+
+var rectLeft = [ [new ndollar.Point(400, 152),  new ndollar.Point(350, 150)],
+                  [new ndollar.Point(300, 149), new ndollar.Point(250, 147)],
+                  [new ndollar.Point(200, 150), new ndollar.Point(150, 152)]
+                ];
+
+nRecognizer.AddGesture( "GestureLeft", rectLeft);
+
+var myHandDrawingOfRectRight = [ [new ndollar.Point(400, 150),  new ndollar.Point(340, 150)],
+                                [new ndollar.Point(300, 150), new ndollar.Point(220, 150)],
+                                [new ndollar.Point(180, 150), new ndollar.Point(90, 150)]
+                                ];
+
 //gestureDetector.unistrokes = []
 
 // gestureDetector.addGesture('right', [{x:150,y:125},{x:300,y:126}]);
@@ -56,15 +79,15 @@ function detectGesture(){
     //   if(detectedGesture.score >= 0.65)
     //     console.log('LEFT', detectedGesture, 'Coordenadas:', leftPoseHistory);
     // }
+    let result = nRecognizer.Recognize(myHandDrawingOfRectRight, true, true);
 
-    let detectedGesture = gestureDetector.recognize(leftPoseHistory.slice(0));
-    let rightDetectedGesture = gestureDetector.recognize(rightPoseHistory.slice(0));
-    if(detectedGesture.score >= 0.69)
-      console.log('LEFT', detectedGesture, 'Coordenadas:', leftPoseHistory);
-    if(rightDetectedGesture.score >= 0.69)
-     console.log('RIGHT', rightDetectedGesture, 'Coordenadas: ', rightPoseHistory);
-    // if(detectedGesture.score >= 0.66 && rightDetectedGesture.score >= 0.66 && detectedGesture.name == 'left-diagonal' && rightDetectedGesture.name == 'right-diagonal')
-    //   console.log('BOOOOOOOOMMM')
+    console.log(result)
+    // let detectedGesture = gestureDetector.recognize(leftPoseHistory.slice(0));
+    // let rightDetectedGesture = gestureDetector.recognize(rightPoseHistory.slice(0));
+    // if(detectedGesture.score >= 0.69)
+    //   console.log('LEFT', detectedGesture, 'Coordenadas:', leftPoseHistory);
+    // if(rightDetectedGesture.score >= 0.69)
+    //  console.log('RIGHT', rightDetectedGesture, 'Coordenadas: ', rightPoseHistory);
 
   }
 
