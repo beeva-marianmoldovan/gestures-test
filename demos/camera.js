@@ -25,6 +25,158 @@ const stats = new Stats();
 var leftPoseHistory = [];
 var rightPoseHistory = [];
 
+var mockOpenRight = [
+  {x:250, y:250},
+  {x:249, y:251},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:130, y:252},
+  {x:102, y:253},
+  {x:100, y:255}
+];
+
+var mockOpenLeft = [
+  {x:270, y:251},
+  {x:272, y:251},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:250, y:250},
+  {x:400, y:252},
+  {x:418, y:253},
+  {x:420, y:255}
+];
+
+var mockUpLeft = [
+  {x: 271, y: 250},
+  {x: 270, y: 235},
+  {x: 270, y: 234},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 271, y: 26},
+  {x: 272, y: 30},
+  {x: 272, y: 20}
+]
+
+var mockUpRight = [
+  {x: 225, y: 240},
+  {x: 226, y: 238},
+  {x: 270, y: 235},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 227, y: 40},
+  {x: 228, y: 38},
+  {x: 230, y: 32}
+]
+
+var mockVLeft = [
+  {x: 270, y: 250},
+  {x: 272, y: 248},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 368, y: 32},
+  {x: 370, y: 30}
+]
+
+var mockVRight = [
+  {x: 250, y: 250},
+  {x: 248, y: 248},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 152, y: 350},
+  {x: 150, y: 350}
+]
+
+
+var mockPerpLeft = [
+  {x: 250, y: 250},
+  {x: 252, y: 248},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 428, y: 252},
+  {x: 430, y: 251}
+]
+
+var mockPerpRight = [
+  {x: 230, y: 250},
+  {x: 231, y: 248},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 270, y: 250},
+  {x: 230, y: 28},
+  {x: 229, y: 30}
+]
 
 function detectGesture() {
   if(leftPoseHistory.length > 15)
@@ -33,11 +185,31 @@ function detectGesture() {
     rightPoseHistory = rightPoseHistory.slice(rightPoseHistory.length - 15, rightPoseHistory.length)
   
     if(rightPoseHistory.length > 14) {
-      if(getDirection(rightPoseHistory) !== undefined)
-        console.log('Dir-right: ',getDirection(rightPoseHistory))
-      if(getDirection(leftPoseHistory) !== undefined)
-        console.log('Dir-left: ',getDirection(leftPoseHistory))
+      let rDir, lDir;
+      rDir = getDirection(rightPoseHistory);
+      lDir = getDirection(leftPoseHistory);
+      // if(rDir !== undefined)
+      //   console.log('Dir-right: ',rDir)
+      // if(lDir !== undefined)
+      //   console.log('Dir-left: ',lDir)
+      // console.log('Separacion: ', getDistance(leftPoseHistory, rightPoseHistory))
+
+      // console.log('Paralelas: ', getSlope(leftPoseHistory, rightPoseHistory))
+
+      if(getSlope(leftPoseHistory, rightPoseHistory) === 1 && getDistance(leftPoseHistory, rightPoseHistory) === 1)
+        console.log('Zoom OUT')
+      if(getSlope(leftPoseHistory, rightPoseHistory) === 1 && getDistance(leftPoseHistory, rightPoseHistory) === -1)
+        console.log('Zoom IN')
+      // console.log('---------------------MOCK----------------------------');
+      // console.log('Right: ', getDirection(mockVLeft));
+      // console.log('Left: ',getDirection(mockVRight));
+      // console.log('Separacion: ', getDistance(mockVLeft, mockVRight))
+      // console.log('Paralelas: ', getSlope(mockVLeft, mockVRight))
+      // console.log('---------------------FIN MOCK----------------------------');
+
     }
+
+  // console.log('-------------------------------------------------');
 }
 
 function getDirection(arr) {
@@ -58,15 +230,37 @@ function getDirection(arr) {
   //   }
   // }
   //console.log('RR:', rightCount, 'LL: ', leftCount)
-  if(arr[14].x - arr[0].x > 60)
-    return 'right';
-  if(arr[14].x - arr[0].x < -60)
-    return 'left';
-  if(arr[14].y - arr[0].y > 60)
-    return 'down';
-  if(arr[14].y - arr[0].y < -60)
-    return 'up';
+  if(arr[14].x - arr[0].x > 60 || arr[14].x - arr[0].x < -60)
+    return 'horizontal';
+  if(arr[14].y - arr[0].y > 60 || arr[14].y - arr[0].y < -60)
+    return 'vertical';
+}
 
+// Suponemos que las 2 manos se mueven al mismo tiempo
+function getDistance(left, right) {
+  if(left[14].x - left[0].x > 50 && right[14].x - right[0].x < -50) // Se han movido las 2 manos alejandose 50 puntos cada una de su punto de origen
+    return 1; // Se aleja
+  else if(left[14].x - left[0].x < -50 && right[14].x - right[0].x > 50) // Se han acercado las 2 manos 50 puntos desde su origen
+    return -1; // Se acerca
+  else // Pueden no haberse movido o pueden haberse movido pero no lo suficiente
+    return 0;
+}
+
+function getSlope(left, right) {
+  let l1, l2;
+
+  // console.log('y2',left[14].y , 'y1',left[1].y , 'x2', left[14].x, 'x1', left[1].x);
+  // console.log('y2',right[14].y , 'y1',right[1].y , 'x2', right[14].x, 'x1', right[1].x);
+  l1 = (left[14].y - left[1].y) / (left[14].x - left[1].x);
+  l2 = (right[14].y - right[1].y) / (right[14].x - right[1].x);
+  // console.log('l1: ', l1 , 'l2', l2)
+  
+  if (l1 * l2 > -1.1 && l1 * l2 < -0.9) // Perpendiculares
+    return -1
+  else if(Math.abs(l1 - l2) > 0 && Math.abs(l1 - l2) < 2) // Paralelas
+    return 1;
+  else // Se cruzan
+    return 0;
 }
 
 function isAndroid() {
